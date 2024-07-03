@@ -20,10 +20,7 @@ meta.changelog for foobar is: "https://foobar-homepage.com/changelog/v1.2.3"
 
 ###### Impact
 
-<details>
-<summary>
-<b>Checks done</b> (click to expand)
-</summary>
+<b>Checks done</b>
 
 ---
 
@@ -32,7 +29,6 @@ meta.changelog for foobar is: "https://foobar-homepage.com/changelog/v1.2.3"
 
 ---
 
-</details>
 <details>
 <summary>
 <b>Rebuild report</b> (if merged into master) (click to expand)
@@ -81,4 +77,4 @@ NixPkgs review skipped
 
 ###### Maintainer pings
 
-cc @maintainer1 for [testing](https://github.com/ryantm/nixpkgs-update/blob/master/doc/nixpkgs-maintainer-faq.md#r-ryantm-opened-a-pr-for-my-package-what-do-i-do).
+cc @maintainer1 for [testing](https://github.com/ryantm/nixpkgs-update/blob/main/doc/nixpkgs-maintainer-faq.md#r-ryantm-opened-a-pr-for-my-package-what-do-i-do).

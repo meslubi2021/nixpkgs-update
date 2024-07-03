@@ -12,9 +12,11 @@ module Skiplist
   )
 where
 
+import Data.Char (isDigit)
 import Data.Foldable (find)
 import qualified Data.Text as T
 import OurPrelude
+import Text.Regex.Applicative.Text (RE', few, psym, string, (=~))
 
 type Skiplist = [(Text -> Bool, Text)]
 
@@ -59,6 +61,9 @@ attrPathList =
       "deepin"
       "deepin packages are upgraded in lockstep https://github.com/NixOS/nixpkgs/pull/52327#issuecomment-447684194",
     prefix
+      "monero-"
+      "monero-cli and monero-gui packages are upgraded in lockstep",
+    prefix
       "element-desktop"
       "@Ma27 asked to skip",
     prefix
@@ -79,7 +84,23 @@ attrPathList =
     eq "imagemagick_light" "same file and version as imagemagick",
     eq "imagemagickBig" "same file and version as imagemagick",
     eq "libheimdal" "alias of heimdal",
-    eq "minio_legacy_fs" "@bachp asked to skip"
+    eq "minio_legacy_fs" "@bachp asked to skip",
+    eq "flint" "update repeatedly exceeded the 6h timeout",
+    eq "keepmenu" "update repeatedly exceeded the 6h timeout",
+    eq "klee" "update repeatedly exceeded the 6h timeout",
+    regex
+      (string "python" *> few (psym isDigit) *> string "Packages.mmengine")
+      "takes way too long to build",
+    prefix
+      "linuxKernel"
+      "creates too many duplicate PRs",
+    prefix
+      "postgresql"
+      "creates too many duplicate PRs",
+    prefix
+      -- bump this when the default version is changed
+      "python312Packages"
+      "isn't the default python version"
   ]
 
 nameList :: Skiplist
@@ -176,9 +197,9 @@ checkResultList =
 
 skipOutpathCalcList :: Skiplist
 skipOutpathCalcList =
-  [ eq "firefox-beta-bin-unwrapped" "master"
-  , eq "firefox-devedition-bin-unwrapped" "master"
-  -- "firefox-release-bin-unwrapped" is unneeded here because firefox-bin is a dependency of other packages that Hydra doesn't ignore.
+  [ eq "firefox-beta-bin-unwrapped" "master",
+    eq "firefox-devedition-bin-unwrapped" "master"
+    -- "firefox-release-bin-unwrapped" is unneeded here because firefox-bin is a dependency of other packages that Hydra doesn't ignore.
   ]
 
 binariesStickAround :: Text -> (Text -> Bool, Text)
@@ -199,6 +220,9 @@ infixOf part reason = ((part `T.isInfixOf`), reason)
 eq :: Text -> Text -> (Text -> Bool, Text)
 eq part reason = ((part ==), reason)
 
+regex :: RE' a -> Text -> (Text -> Bool, Text)
+regex pat reason = (isJust . (=~ pat), reason)
+
 python :: Monad m => Int -> Text -> ExceptT Text m ()
 python numPackageRebuilds derivationContents =
   tryAssert
@@ -210,4 +234,4 @@ python numPackageRebuilds derivationContents =
     (not isPython || numPackageRebuilds <= maxPackageRebuild)
   where
     isPython = "buildPythonPackage" `T.isInfixOf` derivationContents
-    maxPackageRebuild = 25
+    maxPackageRebuild = 100
